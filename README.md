@@ -63,6 +63,16 @@ python main.py --stage quality      # Step 2: Run quality checks
 python main.py --stage analytics    # Step 3: Generate analytics HTML
 ```
 
+### Running Tests
+
+```bash
+# Ensure pytest is installed (if not already)
+pip install pytest
+
+# Run the test suite
+pytest test_pipeline.py
+```
+
 ## 📡 Data Source
 
 ### API Details
