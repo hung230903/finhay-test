@@ -1,0 +1,29 @@
+# Python-generated files
+__pycache__/
+*.py[oc]
+build/
+dist/
+wheels/
+*.egg-info
+
+# Virtual environments
+.venv
+.env
+
+# SQLite WAL/SHM (temp files — the .db itself IS committed for submission)
+*.db-wal
+*.db-shm
+
+# Logs (regenerated on each run)
+logs/
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# NOTE: The following files ARE tracked (required for submission):
+#   market_data.db
+#   data_quality_report.json
+#   analytics_output.html

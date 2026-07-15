@@ -1,0 +1,13 @@
+[project]
+name = "finhay-stock-pipeline"
+version = "1.0.0"
+description = "Vietnamese stock market data pipeline — ingestion, quality checks, and analytics for HOSE VN30 stocks"
+readme = "README.md"
+requires-python = ">=3.10"
+dependencies = []
+
+[project.scripts]
+pipeline = "main:main"
+ingest = "ingest:main"
+quality-check = "quality_check:main"
+analytics = "analytics:main"

@@ -1,0 +1,12 @@
+# Vietnamese Stock Market Data Pipeline — Dependencies
+#
+# This project intentionally uses only Python standard library modules
+# (urllib, json, sqlite3, logging, argparse, datetime, pathlib)
+# to minimize external dependencies and maximize portability.
+#
+# No third-party packages are required.
+#
+# Optional (for development/testing):
+# pytest>=7.0       # Unit testing
+# ruff>=0.1.0       # Linting
+# black>=23.0       # Code formatting
