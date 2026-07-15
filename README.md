@@ -15,6 +15,7 @@ finhay-test/
 ├── README.md                  # This file — setup & run instructions
 ├── config.py                  # Configuration (API URL, DB path, thresholds, field mapping)
 ├── main.py                    # Pipeline orchestrator
+├── test_pipeline.py           # Unit tests (pytest)
 ├── ingest.py                  # Deliverable 1 — Data ingestion script
 ├── quality_check.py           # Deliverable 2 — Data quality checker
 ├── analytics.py               # Deliverable 3 — SQL + HTML analytics generator
@@ -146,6 +147,19 @@ CREATE TABLE stock_prices (
 | 6   | **Data completeness**    | No NULLs in critical columns                 | Bonus    |
 | 7   | **Bid-ask spread**       | `best_offer ≥ best_bid` (no negative spread) | Bonus    |
 
+## 🧪 Unit Testing
+
+The project includes a comprehensive suite of unit tests written in native `pytest` format, ensuring the reliability of data parsing, ingestion logic, database upserts, and quality validation rules.
+
+```bash
+# Run the test suite
+pytest test_pipeline.py
+```
+
+- **In-memory SQLite:** Tests use an isolated `:memory:` database to prevent polluting production data.
+- **Fixtures:** Utilizes `@pytest.fixture` for clean database setup and teardown.
+- **Coverage:** Tests API JSON parsing, graceful fallbacks, UPSERT idempotency, and Data Quality bounds checking.
+
 ## 📊 Analytics Query
 
 ```sql
@@ -195,13 +209,3 @@ All configuration is centralized in `config.py` and can be overridden via enviro
 | Market holiday / no data | Reports empty data, exits with warning         |
 | Database locked          | WAL mode for concurrent reads                  |
 | Partial data             | Inserts valid records, skips invalid ones      |
-
-## 🏛️ Design Decisions
-
-1. **Zero dependencies** — Uses only Python stdlib to avoid version conflicts and simplify deployment
-2. **UPSERT strategy** — Idempotent writes prevent duplicates on re-runs (same trading day)
-3. **WAL mode** — Enables concurrent readers while writing (future dashboard support)
-4. **Fallback API** — Tries VN30 → HOSE30 if primary returns empty
-5. **Browser headers** — SSI iBoard API requires User-Agent/Referer headers (returns 403 otherwise)
-6. **Extensible quality framework** — Class-based checks make it easy to add new rules
-7. **Audit trail** — `ingestion_log` table tracks every pipeline run for debugging
