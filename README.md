@@ -2,6 +2,9 @@
 
 A complete data pipeline for Vietnamese stock market data (HOSE — VN30) that ingests, validates, and analyzes real-time stock information from the SSI iBoard public API.
 
+> **💡 Note on Endpoint Selection (VN30 vs HOSE30):**
+> The original project requirement suggested using the `HOSE30` endpoint. However, during implementation and testing, it was discovered that the SSI API's `HOSE30` endpoint frequently returns empty data (instability). To ensure pipeline reliability, the primary endpoint was intentionally switched to `VN30` (which reliably returns the exact same top 30 HOSE stocks).
+
 ### Data Flow
 
 1. **Ingest** (`ingest.py`) — Fetches VN30 stock data from SSI iBoard API, normalizes field names, and upserts into SQLite
@@ -84,9 +87,6 @@ pytest test_pipeline.py
 | Format   | JSON                                               |
 | Records  | 30 stocks (VN30 index)                             |
 | Update   | Real-time during trading hours (9:00–15:00 ICT)    |
-
-> **💡 Note on Endpoint Selection (VN30 vs HOSE30):**
-> The original project requirement suggested using the `HOSE30` endpoint. However, during implementation and testing, it was discovered that the SSI API's `HOSE30` endpoint frequently returns empty data (instability). To ensure pipeline reliability, the primary endpoint was intentionally switched to `VN30` (which reliably returns the exact same top 30 HOSE stocks).
 
 ### Field Mapping
 
