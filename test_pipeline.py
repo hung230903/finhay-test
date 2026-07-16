@@ -36,7 +36,6 @@ def test_normalize_record_valid():
         "matchedPrice": 135000,
         "nmTotalTradedQty": 5000000,
         "tradingDate": "20260715",
-        "exchange": "HOSE",
     }
     clean = ingest.normalize_record(raw_api_data)
 
@@ -45,7 +44,6 @@ def test_normalize_record_valid():
     assert clean["price"] == 135000
     assert clean["volume"] == 5000000
     assert clean["trading_date"] == "2026-07-15"
-    assert clean["exchange"] == "HOSE"
 
 
 def test_normalize_record_missing_ticker():
@@ -61,24 +59,13 @@ def test_upsert_logic(db_connection):
     record1 = {
         "ticker": "VNM",
         "company_name": "Vinamilk",
-        "exchange": "HOSE",
         "price": 65000,
         "open_price": 64000,
         "high_price": 66000,
         "low_price": 63000,
-        "ref_price": 64500,
-        "ceiling_price": 69000,
-        "floor_price": 60000,
-        "price_change": 500,
         "change_pct": 0.77,
         "volume": 1000,
         "market_cap": 65000000,
-        "foreign_buy_vol": 0,
-        "foreign_sell_vol": 0,
-        "foreign_remaining": 0,
-        "best_bid": 64900,
-        "best_offer": 65100,
-        "session": "CONTINUOUS",
         "trading_date": "2026-07-15",
         "timestamp": "2026-07-15 10:00:00",
     }

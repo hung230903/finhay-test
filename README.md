@@ -5,7 +5,7 @@ A complete data pipeline for Vietnamese stock market data (HOSE — VN30) that i
 ### Data Flow
 
 1. **Ingest** (`ingest.py`) — Fetches VN30 stock data from SSI iBoard API, normalizes field names, and upserts into SQLite
-2. **Quality Check** (`quality_check.py`) — Runs 7 automated quality rules against the database, outputs a structured JSON report
+2. **Quality Check** (`quality_check.py`) — Runs 5 automated quality rules against the database, outputs a structured JSON report
 3. **Analytics** (`analytics.py`) — Executes SQL query for intraday volatility analysis, generates a dark-themed HTML report
 
 ## 📁 Project Structure
@@ -85,6 +85,10 @@ pytest test_pipeline.py
 | Records  | 30 stocks (VN30 index)                             |
 | Update   | Real-time during trading hours (9:00–15:00 ICT)    |
 
+> **💡 Note on Endpoint Selection (VN30 vs HOSE30):**
+> The original project requirement suggested using the `HOSE30` endpoint. However, during implementation and testing, it was discovered that the SSI API's `HOSE30` endpoint frequently returns empty data (instability). To ensure pipeline reliability, the primary endpoint was intentionally switched to `VN30` (which reliably returns the exact same top 30 HOSE stocks). 
+> *As a bonus resilience feature, a fallback mechanism is implemented: if `VN30` fails, it automatically attempts to fetch from `HOSE30`.*
+
 ### Field Mapping
 
 The SSI iBoard API uses internal field names. This pipeline normalizes them:
@@ -92,16 +96,14 @@ The SSI iBoard API uses internal field names. This pipeline normalizes them:
 | API Field            | Database Column | Description                   |
 | -------------------- | --------------- | ----------------------------- |
 | `stockSymbol`        | `ticker`        | Stock ticker (e.g., ACB, VCB) |
+| `companyNameEn`      | `company_name`  | English Company Name          |
 | `matchedPrice`       | `price`         | Last matched price (VND)      |
-| `priceChangePercent` | `change_pct`    | % change from previous close  |
-| `nmTotalTradedQty`   | `volume`        | Total shares traded today     |
-| `nmTotalTradedValue` | `market_cap`    | Total traded value (VND)      |
 | `openPrice`          | `open_price`    | Opening price                 |
 | `highest`            | `high_price`    | Intraday high                 |
 | `lowest`             | `low_price`     | Intraday low                  |
-| `refPrice`           | `ref_price`     | Reference price               |
-| `ceiling`            | `ceiling_price` | HOSE price ceiling (+7%)      |
-| `floor`              | `floor_price`   | HOSE price floor (−7%)        |
+| `priceChangePercent` | `change_pct`    | % change from previous close  |
+| `nmTotalTradedQty`   | `volume`        | Total shares traded today     |
+| `nmTotalTradedValue` | `market_cap`    | Total traded value (VND)      |
 
 ## 🗄️ Database Schema
 
@@ -110,24 +112,13 @@ CREATE TABLE stock_prices (
     id              INTEGER PRIMARY KEY AUTOINCREMENT,
     ticker          TEXT    NOT NULL,
     company_name    TEXT,
-    exchange        TEXT,
     price           REAL,
     open_price      REAL,
     high_price      REAL,
     low_price       REAL,
-    ref_price       REAL,
-    ceiling_price   REAL,
-    floor_price     REAL,
-    price_change    REAL,
     change_pct      REAL,
     volume          INTEGER,
     market_cap      REAL,
-    foreign_buy_vol INTEGER,
-    foreign_sell_vol INTEGER,
-    foreign_remaining INTEGER,
-    best_bid        REAL,
-    best_offer      REAL,
-    session         TEXT,
     trading_date    TEXT    NOT NULL,
     timestamp       TEXT    NOT NULL,
     created_at      TEXT    NOT NULL DEFAULT (datetime('now')),
@@ -153,9 +144,7 @@ CREATE TABLE stock_prices (
 | 2   | **Price change bounds**  | `change_pct` within ±30%                     | Required |
 | 3   | **Volume positivity**    | `volume > 0` during 9:00–15:00 ICT           | Required |
 | 4   | **No duplicate tickers** | Max 1 record per ticker per trading day      | Bonus    |
-| 5   | **Price ceiling/floor**  | `floor ≤ price ≤ ceiling`                    | Bonus    |
-| 6   | **Data completeness**    | No NULLs in critical columns                 | Bonus    |
-| 7   | **Bid-ask spread**       | `best_offer ≥ best_bid` (no negative spread) | Bonus    |
+| 5   | **Data completeness**    | No NULLs in critical columns                 | Bonus    |
 
 ## 🧪 Unit Testing
 
