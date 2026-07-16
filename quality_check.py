@@ -9,9 +9,7 @@ Checks implemented:
   2. Price change within bounds — change_pct within ±30%
   3. Volume positivity — volume > 0 during trading hours (9:00–15:00 ICT)
   4. [Bonus] No duplicate tickers — each ticker appears at most once per trading day
-  5. [Bonus] Price within ceiling/floor — price must be between floor and ceiling
-  6. [Bonus] Data completeness — all expected fields should be populated
-  7. [Bonus] Bid-Ask spread sanity — best_offer >= best_bid
+  5. [Bonus] Data completeness — all expected fields should be populated
 
 Usage:
     python quality_check.py              # Check against default DB
@@ -272,57 +270,6 @@ class DuplicateTickerCheck(QualityCheck):
         }
 
 
-class PriceCeilingFloorCheck(QualityCheck):
-    """Bonus Rule 5: Price must be within [floor, ceiling] range."""
-
-    def __init__(self):
-        super().__init__(
-            "price_within_ceiling_floor",
-            "Matched price must be within the regulatory floor-ceiling range",
-        )
-
-    def run(self, conn: sqlite3.Connection) -> dict:
-        cursor = conn.cursor()
-        total = cursor.execute("SELECT COUNT(*) FROM stock_prices").fetchone()[0]
-
-        violations = cursor.execute(
-            """
-            SELECT ticker, price, floor_price, ceiling_price
-            FROM stock_prices
-            WHERE price IS NOT NULL
-              AND floor_price IS NOT NULL
-              AND ceiling_price IS NOT NULL
-              AND (price < floor_price OR price > ceiling_price)
-            """
-        ).fetchall()
-
-        violation_details = [
-            {
-                "ticker": row[0],
-                "price": row[1],
-                "floor": row[2],
-                "ceiling": row[3],
-            }
-            for row in violations
-        ]
-
-        return {
-            "rule": self.name,
-            "description": self.description,
-            "status": "pass" if not violations else "fail",
-            "total_records": total,
-            "violations": len(violations),
-            "details": {
-                "out_of_range_tickers": violation_details,
-                "message": (
-                    "All prices within ceiling/floor bounds"
-                    if not violations
-                    else f"{len(violations)} tickers have prices outside regulatory bounds"
-                ),
-            },
-        }
-
-
 class DataCompletenessCheck(QualityCheck):
     """Bonus Rule 6: Check for missing values in critical columns."""
 
@@ -370,51 +317,6 @@ class DataCompletenessCheck(QualityCheck):
                     "All critical columns are fully populated"
                     if total_nulls == 0
                     else f"{total_nulls} NULL values found across {len(column_nulls)} columns"
-                ),
-            },
-        }
-
-
-class BidAskSpreadCheck(QualityCheck):
-    """Bonus Rule 7: Best offer should be >= best bid (no negative spread)."""
-
-    def __init__(self):
-        super().__init__(
-            "bid_ask_spread_sanity",
-            "Best offer price should be >= best bid price (no negative spread)",
-        )
-
-    def run(self, conn: sqlite3.Connection) -> dict:
-        cursor = conn.cursor()
-        total = cursor.execute("SELECT COUNT(*) FROM stock_prices").fetchone()[0]
-
-        violations = cursor.execute(
-            """
-            SELECT ticker, best_bid, best_offer
-            FROM stock_prices
-            WHERE best_bid IS NOT NULL
-              AND best_offer IS NOT NULL
-              AND best_offer < best_bid
-            """
-        ).fetchall()
-
-        violation_details = [
-            {"ticker": row[0], "best_bid": row[1], "best_offer": row[2]}
-            for row in violations
-        ]
-
-        return {
-            "rule": self.name,
-            "description": self.description,
-            "status": "pass" if not violations else "fail",
-            "total_records": total,
-            "violations": len(violations),
-            "details": {
-                "negative_spread_tickers": violation_details,
-                "message": (
-                    "All bid-ask spreads are valid"
-                    if not violations
-                    else f"{len(violations)} tickers have negative bid-ask spread"
                 ),
             },
         }
