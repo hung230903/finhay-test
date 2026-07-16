@@ -27,7 +27,6 @@ API_URL = os.getenv(
 )
 
 
-
 # Browser-like headers required by the SSI iBoard API
 # (returns 403 without proper User-Agent and Referer)
 API_HEADERS = {

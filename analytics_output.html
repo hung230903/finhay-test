@@ -1,598 +1,631 @@
+<!doctype html>
+<html lang="en">
 
-    <!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <meta name="description" content="Vietnamese Stock Market Intraday Volatility Analytics - Top 10 HOSE stocks by volatility">
-        <title>📈 HOSE Top 10 Intraday Volatility | Finhay Analytics</title>
-        <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-        <style>
-            /* ─── CSS Reset & Base ─────────────────────────────────────── */
-            *, *::before, *::after {
-                margin: 0;
-                padding: 0;
-                box-sizing: border-box;
-            }
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description"
+    content="Vietnamese Stock Market Intraday Volatility Analytics - Top 10 HOSE stocks by volatility" />
+  <title>📈 HOSE Top 10 Intraday Volatility | Finhay Analytics</title>
+  <link
+    href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&family=JetBrains+Mono:wght@400;500&display=swap"
+    rel="stylesheet" />
+  <style>
+    /* ─── CSS Reset & Base ─────────────────────────────────────── */
+    *,
+    *::before,
+    *::after {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
 
-            :root {
-                --bg-primary: #0a0e1a;
-                --bg-secondary: #111827;
-                --bg-card: rgba(17, 24, 39, 0.8);
-                --bg-hover: rgba(55, 65, 81, 0.4);
-                --border: rgba(75, 85, 99, 0.3);
-                --text-primary: #f9fafb;
-                --text-secondary: #9ca3af;
-                --text-muted: #6b7280;
-                --accent-green: #10b981;
-                --accent-green-bg: rgba(16, 185, 129, 0.1);
-                --accent-red: #ef4444;
-                --accent-red-bg: rgba(239, 68, 68, 0.1);
-                --accent-yellow: #f59e0b;
-                --accent-yellow-bg: rgba(245, 158, 11, 0.1);
-                --accent-blue: #3b82f6;
-                --accent-blue-bg: rgba(59, 130, 246, 0.1);
-                --accent-purple: #8b5cf6;
-                --gradient-start: #667eea;
-                --gradient-end: #764ba2;
-            }
+    :root {
+      --bg-primary: #0a0e1a;
+      --bg-secondary: #111827;
+      --bg-card: rgba(17, 24, 39, 0.8);
+      --bg-hover: rgba(55, 65, 81, 0.4);
+      --border: rgba(75, 85, 99, 0.3);
+      --text-primary: #f9fafb;
+      --text-secondary: #9ca3af;
+      --text-muted: #6b7280;
+      --accent-green: #10b981;
+      --accent-green-bg: rgba(16, 185, 129, 0.1);
+      --accent-red: #ef4444;
+      --accent-red-bg: rgba(239, 68, 68, 0.1);
+      --accent-yellow: #f59e0b;
+      --accent-yellow-bg: rgba(245, 158, 11, 0.1);
+      --accent-blue: #3b82f6;
+      --accent-blue-bg: rgba(59, 130, 246, 0.1);
+      --accent-purple: #8b5cf6;
+      --gradient-start: #667eea;
+      --gradient-end: #764ba2;
+    }
 
-            body {
-                font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
-                background: var(--bg-primary);
-                color: var(--text-primary);
-                min-height: 100vh;
-                line-height: 1.6;
-            }
+    body {
+      font-family:
+        "Inter",
+        -apple-system,
+        BlinkMacSystemFont,
+        sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      min-height: 100vh;
+      line-height: 1.6;
+    }
 
-            /* ─── Background Effect ────────────────────────────────────── */
-            body::before {
-                content: '';
-                position: fixed;
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                background:
-                    radial-gradient(ellipse at 20% 50%, rgba(102, 126, 234, 0.08) 0%, transparent 50%),
-                    radial-gradient(ellipse at 80% 50%, rgba(118, 75, 162, 0.06) 0%, transparent 50%),
-                    radial-gradient(ellipse at 50% 0%, rgba(59, 130, 246, 0.05) 0%, transparent 40%);
-                pointer-events: none;
-                z-index: 0;
-            }
+    /* ─── Background Effect ────────────────────────────────────── */
+    body::before {
+      content: "";
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background:
+        radial-gradient(ellipse at 20% 50%,
+          rgba(102, 126, 234, 0.08) 0%,
+          transparent 50%),
+        radial-gradient(ellipse at 80% 50%,
+          rgba(118, 75, 162, 0.06) 0%,
+          transparent 50%),
+        radial-gradient(ellipse at 50% 0%,
+          rgba(59, 130, 246, 0.05) 0%,
+          transparent 40%);
+      pointer-events: none;
+      z-index: 0;
+    }
 
-            /* ─── Container ────────────────────────────────────────────── */
-            .container {
-                max-width: 1400px;
-                margin: 0 auto;
-                padding: 2rem 1.5rem;
-                position: relative;
-                z-index: 1;
-            }
+    /* ─── Container ────────────────────────────────────────────── */
+    .container {
+      max-width: 1400px;
+      margin: 0 auto;
+      padding: 2rem 1.5rem;
+      position: relative;
+      z-index: 1;
+    }
 
-            /* ─── Header ──────────────────────────────────────────────── */
-            .header {
-                text-align: center;
-                margin-bottom: 2.5rem;
-            }
+    /* ─── Header ──────────────────────────────────────────────── */
+    .header {
+      text-align: center;
+      margin-bottom: 2.5rem;
+    }
 
-            .header h1 {
-                font-size: 2rem;
-                font-weight: 700;
-                background: linear-gradient(135deg, var(--gradient-start), var(--gradient-end));
-                -webkit-background-clip: text;
-                -webkit-text-fill-color: transparent;
-                background-clip: text;
-                margin-bottom: 0.5rem;
-                letter-spacing: -0.02em;
-            }
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      background: linear-gradient(135deg,
+          var(--gradient-start),
+          var(--gradient-end));
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+      margin-bottom: 0.5rem;
+      letter-spacing: -0.02em;
+    }
 
-            .header .subtitle {
-                color: var(--text-secondary);
-                font-size: 0.95rem;
-                font-weight: 400;
-            }
+    .header .subtitle {
+      color: var(--text-secondary);
+      font-size: 0.95rem;
+      font-weight: 400;
+    }
 
-            .header .date-badge {
-                display: inline-flex;
-                align-items: center;
-                gap: 0.5rem;
-                margin-top: 1rem;
-                padding: 0.5rem 1.25rem;
-                background: var(--bg-card);
-                border: 1px solid var(--border);
-                border-radius: 100px;
-                font-family: 'JetBrains Mono', monospace;
-                font-size: 0.85rem;
-                color: var(--text-secondary);
-                backdrop-filter: blur(10px);
-            }
+    .header .date-badge {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      margin-top: 1rem;
+      padding: 0.5rem 1.25rem;
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 100px;
+      font-family: "JetBrains Mono", monospace;
+      font-size: 0.85rem;
+      color: var(--text-secondary);
+      backdrop-filter: blur(10px);
+    }
 
-            .date-badge .dot {
-                width: 8px;
-                height: 8px;
-                border-radius: 50%;
-                background: var(--accent-green);
-                animation: pulse 2s infinite;
-            }
+    .date-badge .dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: var(--accent-green);
+      animation: pulse 2s infinite;
+    }
 
-            @keyframes pulse {
-                0%, 100% { opacity: 1; }
-                50% { opacity: 0.4; }
-            }
+    @keyframes pulse {
 
-            /* ─── Stats Bar ───────────────────────────────────────────── */
-            .stats-bar {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
-                gap: 1rem;
-                margin-bottom: 2rem;
-            }
+      0%,
+      100% {
+        opacity: 1;
+      }
 
-            .stat-card {
-                background: var(--bg-card);
-                border: 1px solid var(--border);
-                border-radius: 12px;
-                padding: 1.25rem;
-                backdrop-filter: blur(10px);
-                transition: transform 0.2s, border-color 0.2s;
-            }
+      50% {
+        opacity: 0.4;
+      }
+    }
 
-            .stat-card:hover {
-                transform: translateY(-2px);
-                border-color: rgba(102, 126, 234, 0.3);
-            }
+    /* ─── Stats Bar ───────────────────────────────────────────── */
+    .stats-bar {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
 
-            .stat-card .label {
-                font-size: 0.75rem;
-                text-transform: uppercase;
-                letter-spacing: 0.08em;
-                color: var(--text-muted);
-                margin-bottom: 0.35rem;
-            }
+    .stat-card {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 12px;
+      padding: 1.25rem;
+      backdrop-filter: blur(10px);
+      transition:
+        transform 0.2s,
+        border-color 0.2s;
+    }
 
-            .stat-card .value {
-                font-size: 1.5rem;
-                font-weight: 700;
-                font-family: 'JetBrains Mono', monospace;
-            }
+    .stat-card:hover {
+      transform: translateY(-2px);
+      border-color: rgba(102, 126, 234, 0.3);
+    }
 
-            .stat-card .sub {
-                font-size: 0.8rem;
-                color: var(--text-secondary);
-                margin-top: 0.2rem;
-            }
+    .stat-card .label {
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.08em;
+      color: var(--text-muted);
+      margin-bottom: 0.35rem;
+    }
 
-            /* ─── Table Container ─────────────────────────────────────── */
-            .table-container {
-                background: var(--bg-card);
-                border: 1px solid var(--border);
-                border-radius: 16px;
-                overflow: hidden;
-                backdrop-filter: blur(10px);
-            }
+    .stat-card .value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      font-family: "JetBrains Mono", monospace;
+    }
 
-            .table-header {
-                display: flex;
-                align-items: center;
-                justify-content: space-between;
-                padding: 1.25rem 1.5rem;
-                border-bottom: 1px solid var(--border);
-            }
+    .stat-card .sub {
+      font-size: 0.8rem;
+      color: var(--text-secondary);
+      margin-top: 0.2rem;
+    }
 
-            .table-header h2 {
-                font-size: 1.1rem;
-                font-weight: 600;
-                display: flex;
-                align-items: center;
-                gap: 0.5rem;
-            }
+    /* ─── Table Container ─────────────────────────────────────── */
+    .table-container {
+      background: var(--bg-card);
+      border: 1px solid var(--border);
+      border-radius: 16px;
+      overflow: hidden;
+      backdrop-filter: blur(10px);
+    }
 
-            .table-header .badge {
-                background: var(--accent-blue-bg);
-                color: var(--accent-blue);
-                padding: 0.2rem 0.7rem;
-                border-radius: 100px;
-                font-size: 0.75rem;
-                font-weight: 600;
-            }
+    .table-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      padding: 1.25rem 1.5rem;
+      border-bottom: 1px solid var(--border);
+    }
 
-            /* ─── Table ───────────────────────────────────────────────── */
-            .table-scroll {
-                overflow-x: auto;
-            }
+    .table-header h2 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
 
-            table {
-                width: 100%;
-                border-collapse: collapse;
-                font-size: 0.875rem;
-            }
+    .table-header .badge {
+      background: var(--accent-blue-bg);
+      color: var(--accent-blue);
+      padding: 0.2rem 0.7rem;
+      border-radius: 100px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
 
-            thead th {
-                padding: 0.875rem 1rem;
-                text-align: left;
-                font-weight: 600;
-                font-size: 0.75rem;
-                text-transform: uppercase;
-                letter-spacing: 0.05em;
-                color: var(--text-muted);
-                border-bottom: 1px solid var(--border);
-                white-space: nowrap;
-                position: sticky;
-                top: 0;
-                background: var(--bg-secondary);
-            }
+    /* ─── Table ───────────────────────────────────────────────── */
+    .table-scroll {
+      overflow-x: auto;
+    }
 
-            thead th:first-child {
-                padding-left: 1.5rem;
-            }
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      font-size: 0.875rem;
+    }
 
-            tbody td {
-                padding: 0.875rem 1rem;
-                border-bottom: 1px solid rgba(75, 85, 99, 0.15);
-                white-space: nowrap;
-            }
+    thead th {
+      padding: 0.875rem 1rem;
+      text-align: left;
+      font-weight: 600;
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-muted);
+      border-bottom: 1px solid var(--border);
+      white-space: nowrap;
+      position: sticky;
+      top: 0;
+      background: var(--bg-secondary);
+    }
 
-            tbody td:first-child {
-                padding-left: 1.5rem;
-            }
+    thead th:first-child {
+      padding-left: 1.5rem;
+    }
 
-            .data-row {
-                animation: fadeIn 0.3s ease-out forwards;
-                opacity: 0;
-                transition: background 0.15s;
-            }
+    tbody td {
+      padding: 0.875rem 1rem;
+      border-bottom: 1px solid rgba(75, 85, 99, 0.15);
+      white-space: nowrap;
+    }
 
-            .data-row:hover {
-                background: var(--bg-hover);
-            }
+    tbody td:first-child {
+      padding-left: 1.5rem;
+    }
 
-            @keyframes fadeIn {
-                to { opacity: 1; }
-            }
+    .data-row {
+      animation: fadeIn 0.3s ease-out forwards;
+      opacity: 0;
+      transition: background 0.15s;
+    }
 
-            .rank {
-                color: var(--text-muted);
-                font-family: 'JetBrains Mono', monospace;
-                font-weight: 500;
-            }
+    .data-row:hover {
+      background: var(--bg-hover);
+    }
 
-            .ticker {
-                font-weight: 700;
-                color: var(--accent-blue);
-                font-family: 'JetBrains Mono', monospace;
-                letter-spacing: 0.02em;
-            }
+    @keyframes fadeIn {
+      to {
+        opacity: 1;
+      }
+    }
 
-            .company {
-                color: var(--text-secondary);
-                font-size: 0.8rem;
-                max-width: 200px;
-                overflow: hidden;
-                text-overflow: ellipsis;
-            }
+    .rank {
+      color: var(--text-muted);
+      font-family: "JetBrains Mono", monospace;
+      font-weight: 500;
+    }
 
-            .number {
-                font-family: 'JetBrains Mono', monospace;
-                text-align: right;
-                font-weight: 500;
-            }
+    .ticker {
+      font-weight: 700;
+      color: var(--accent-blue);
+      font-family: "JetBrains Mono", monospace;
+      letter-spacing: 0.02em;
+    }
 
-            /* ─── Status Colors ───────────────────────────────────────── */
-            .positive {
-                color: var(--accent-green);
-                background: var(--accent-green-bg);
-                padding: 0.2rem 0.6rem;
-                border-radius: 6px;
-            }
+    .company {
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      max-width: 200px;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
 
-            .negative {
-                color: var(--accent-red);
-                background: var(--accent-red-bg);
-                padding: 0.2rem 0.6rem;
-                border-radius: 6px;
-            }
+    .number {
+      font-family: "JetBrains Mono", monospace;
+      text-align: right;
+      font-weight: 500;
+    }
 
-            .neutral {
-                color: var(--text-muted);
-            }
+    /* ─── Status Colors ───────────────────────────────────────── */
+    .positive {
+      color: var(--accent-green);
+      background: var(--accent-green-bg);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+    }
 
-            .high-vol {
-                color: var(--accent-red);
-                font-weight: 700;
-            }
+    .negative {
+      color: var(--accent-red);
+      background: var(--accent-red-bg);
+      padding: 0.2rem 0.6rem;
+      border-radius: 6px;
+    }
 
-            .med-vol {
-                color: var(--accent-yellow);
-                font-weight: 600;
-            }
+    .neutral {
+      color: var(--text-muted);
+    }
 
-            .low-vol {
-                color: var(--accent-green);
-            }
+    .high-vol {
+      color: var(--accent-red);
+      font-weight: 700;
+    }
 
-            .high-ratio {
-                color: var(--accent-purple);
-                font-weight: 600;
-            }
+    .med-vol {
+      color: var(--accent-yellow);
+      font-weight: 600;
+    }
 
-            .normal-ratio {
-                color: var(--text-primary);
-            }
+    .low-vol {
+      color: var(--accent-green);
+    }
 
-            .low-ratio {
-                color: var(--text-muted);
-            }
+    .high-ratio {
+      color: var(--accent-purple);
+      font-weight: 600;
+    }
 
-            /* ─── Empty State ─────────────────────────────────────────── */
-            .empty-state {
-                text-align: center;
-                padding: 3rem !important;
-                color: var(--text-muted);
-            }
+    .normal-ratio {
+      color: var(--text-primary);
+    }
 
-            .empty-icon {
-                font-size: 3rem;
-                margin-bottom: 1rem;
-            }
+    .low-ratio {
+      color: var(--text-muted);
+    }
 
-            /* ─── Footer ──────────────────────────────────────────────── */
-            .footer {
-                text-align: center;
-                margin-top: 2rem;
-                padding: 1rem;
-                color: var(--text-muted);
-                font-size: 0.8rem;
-            }
+    /* ─── Empty State ─────────────────────────────────────────── */
+    .empty-state {
+      text-align: center;
+      padding: 3rem !important;
+      color: var(--text-muted);
+    }
 
-            .footer a {
-                color: var(--accent-blue);
-                text-decoration: none;
-            }
+    .empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+    }
 
-            /* ─── Responsive ──────────────────────────────────────────── */
-            @media (max-width: 768px) {
-                .container {
-                    padding: 1rem;
-                }
-                .header h1 {
-                    font-size: 1.5rem;
-                }
-                .stats-bar {
-                    grid-template-columns: repeat(2, 1fr);
-                }
-            }
-        </style>
-    </head>
-    <body>
-        <div class="container">
-            <!-- Header -->
-            <header class="header">
-                <h1>📈 HOSE Intraday Volatility Report</h1>
-                <p class="subtitle">
-                    Top 10 stocks ranked by intraday price volatility with volume analysis
-                </p>
-                <div class="date-badge">
-                    <span class="dot"></span>
-                    Trading Date: 2026-07-16
-                </div>
-            </header>
+    /* ─── Footer ──────────────────────────────────────────────── */
+    .footer {
+      text-align: center;
+      margin-top: 2rem;
+      padding: 1rem;
+      color: var(--text-muted);
+      font-size: 0.8rem;
+    }
 
-            <!-- Stats Summary -->
-            <div class="stats-bar">
-                <div class="stat-card">
-                    <div class="label">Highest Volatility</div>
-                    <div class="value" style="color: var(--accent-red)">
-                        7.22% </div>
-                    <div class="sub">BSR</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Avg Volatility (Top 10)</div>
-                    <div class="value" style="color: var(--accent-yellow)">
-                        5.24%
-                    </div>
-                    <div class="sub">Across 10 stocks</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Max Volume Ratio</div>
-                    <div class="value" style="color: var(--accent-purple)">
-                        1.00x
-                    </div>
-                    <div class="sub">vs 5-day average</div>
-                </div>
-                <div class="stat-card">
-                    <div class="label">Total Volume (Top 10)</div>
-                    <div class="value" style="color: var(--accent-blue)">
-                        112,577,200
-                    </div>
-                    <div class="sub">shares traded today</div>
-                </div>
-            </div>
+    .footer a {
+      color: var(--accent-blue);
+      text-decoration: none;
+    }
 
-            <!-- Data Table -->
-            <div class="table-container">
-                <div class="table-header">
-                    <h2>
-                        🔥 Volatility Ranking
-                        <span class="badge">Top 10</span>
-                    </h2>
-                </div>
-                <div class="table-scroll">
-                    <table>
-                        <thead>
-                            <tr>
-                                <th>#</th>
-                                <th>Ticker</th>
-                                <th>Company</th>
-                                <th>Open</th>
-                                <th>High</th>
-                                <th>Low</th>
-                                <th>Volatility %</th>
-                                <th>Today Vol</th>
-                                <th>5D Avg Vol</th>
-                                <th>Vol Ratio</th>
-                                <th>Change</th>
-                            </tr>
-                        </thead>
-                        <tbody>
-                            
-            <tr class="data-row" style="animation-delay: 0.0s">
-                <td class="rank">1</td>
-                <td class="ticker">BSR</td>
-                <td class="company">PETROVIETNAM REFINING AND PETROCHEMICAL CORPORATION</td>
-                <td class="number">26,300</td>
-                <td class="number">26,550</td>
-                <td class="number">24,650</td>
-                <td class="number high-vol">7.22%</td>
-                <td class="number">9,466,800</td>
-                <td class="number">9,466,800 (0d)</td>
-                <td class="number normal-ratio">1.00x</td>
-                <td class="number negative">▼ 1.14%</td>
+    /* ─── Responsive ──────────────────────────────────────────── */
+    @media (max-width: 768px) {
+      .container {
+        padding: 1rem;
+      }
+
+      .header h1 {
+        font-size: 1.5rem;
+      }
+
+      .stats-bar {
+        grid-template-columns: repeat(2, 1fr);
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <div class="container">
+    <!-- Header -->
+    <header class="header">
+      <h1>📈 HOSE Intraday Volatility Report</h1>
+      <p class="subtitle">
+        Top 10 stocks ranked by intraday price volatility with volume analysis
+      </p>
+      <div class="date-badge">
+        <span class="dot"></span>
+        Trading Date: 2026-07-16
+      </div>
+    </header>
+
+    <!-- Stats Summary -->
+    <div class="stats-bar">
+      <div class="stat-card">
+        <div class="label">Highest Volatility</div>
+        <div class="value" style="color: var(--accent-red)">7.22%</div>
+        <div class="sub">BSR</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Avg Volatility (Top 10)</div>
+        <div class="value" style="color: var(--accent-yellow)">5.24%</div>
+        <div class="sub">Across 10 stocks</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Max Volume Ratio</div>
+        <div class="value" style="color: var(--accent-purple)">1.00x</div>
+        <div class="sub">vs 5-day average</div>
+      </div>
+      <div class="stat-card">
+        <div class="label">Total Volume (Top 10)</div>
+        <div class="value" style="color: var(--accent-blue)">112,577,200</div>
+        <div class="sub">shares traded today</div>
+      </div>
+    </div>
+
+    <!-- Data Table -->
+    <div class="table-container">
+      <div class="table-header">
+        <h2>
+          🔥 Volatility Ranking
+          <span class="badge">Top 10</span>
+        </h2>
+      </div>
+      <div class="table-scroll">
+        <table>
+          <thead>
+            <tr>
+              <th>#</th>
+              <th>Ticker</th>
+              <th>Company</th>
+              <th>Open</th>
+              <th>High</th>
+              <th>Low</th>
+              <th>Volatility %</th>
+              <th>Today Vol</th>
+              <th>5D Avg Vol</th>
+              <th>Vol Ratio</th>
+              <th>Change</th>
             </tr>
-            
+          </thead>
+          <tbody>
+            <tr class="data-row" style="animation-delay: 0s">
+              <td class="rank">1</td>
+              <td class="ticker">BSR</td>
+              <td class="company">
+                PETROVIETNAM REFINING AND PETROCHEMICAL CORPORATION
+              </td>
+              <td class="number">26,300</td>
+              <td class="number">26,550</td>
+              <td class="number">24,650</td>
+              <td class="number high-vol">7.22%</td>
+              <td class="number">9,466,800</td>
+              <td class="number">9,466,800 (0d)</td>
+              <td class="number normal-ratio">1.00x</td>
+              <td class="number negative">▼ 1.14%</td>
+            </tr>
+
             <tr class="data-row" style="animation-delay: 0.05s">
-                <td class="rank">2</td>
-                <td class="ticker">VHM</td>
-                <td class="company">Vinhomes Joint Stock Company</td>
-                <td class="number">133,500</td>
-                <td class="number">142,800</td>
-                <td class="number">133,500</td>
-                <td class="number high-vol">6.97%</td>
-                <td class="number">4,671,100</td>
-                <td class="number">4,671,100 (0d)</td>
-                <td class="number normal-ratio">1.00x</td>
-                <td class="number positive">▲ 5.00%</td>
+              <td class="rank">2</td>
+              <td class="ticker">VHM</td>
+              <td class="company">Vinhomes Joint Stock Company</td>
+              <td class="number">133,500</td>
+              <td class="number">142,800</td>
+              <td class="number">133,500</td>
+              <td class="number high-vol">6.97%</td>
+              <td class="number">4,671,100</td>
+              <td class="number">4,671,100 (0d)</td>
+              <td class="number normal-ratio">1.00x</td>
+              <td class="number positive">▲ 5.00%</td>
             </tr>
-            
-            <tr class="data-row" style="animation-delay: 0.1s">
-                <td class="rank">3</td>
-                <td class="ticker">PLX</td>
-                <td class="company">Viet Nam National Petroleum Group</td>
-                <td class="number">36,100</td>
-                <td class="number">36,550</td>
-                <td class="number">34,500</td>
-                <td class="number high-vol">5.68%</td>
-                <td class="number">2,072,000</td>
-                <td class="number">2,072,000 (0d)</td>
-                <td class="number normal-ratio">1.00x</td>
-                <td class="number negative">▼ 0.42%</td>
-            </tr>
-            
-            <tr class="data-row" style="animation-delay: 0.15000000000000002s">
-                <td class="rank">4</td>
-                <td class="ticker">SSI</td>
-                <td class="company">SSI Securities Corporation</td>
-                <td class="number">24,500</td>
-                <td class="number">25,000</td>
-                <td class="number">23,700</td>
-                <td class="number high-vol">5.31%</td>
-                <td class="number">34,764,700</td>
-                <td class="number">34,764,700 (0d)</td>
-                <td class="number normal-ratio">1.00x</td>
-                <td class="number positive">▲ 1.21%</td>
-            </tr>
-            
-            <tr class="data-row" style="animation-delay: 0.2s">
-                <td class="rank">5</td>
-                <td class="ticker">VIC</td>
-                <td class="company">Vingroup Joint Stock Company</td>
-                <td class="number">212,000</td>
-                <td class="number">223,000</td>
-                <td class="number">212,000</td>
-                <td class="number high-vol">5.19%</td>
-                <td class="number">4,074,700</td>
-                <td class="number">4,074,700 (0d)</td>
-                <td class="number normal-ratio">1.00x</td>
-                <td class="number positive">▲ 2.76%</td>
-            </tr>
-            
-            <tr class="data-row" style="animation-delay: 0.25s">
-                <td class="rank">6</td>
-                <td class="ticker">FPT</td>
-                <td class="company">FPT Corporation</td>
-                <td class="number">66,700</td>
-                <td class="number">68,000</td>
-                <td class="number">64,700</td>
-                <td class="number med-vol">4.95%</td>
-                <td class="number">13,030,600</td>
-                <td class="number">13,030,600 (0d)</td>
-                <td class="number normal-ratio">1.00x</td>
-                <td class="number positive">▲ 1.80%</td>
-            </tr>
-            
-            <tr class="data-row" style="animation-delay: 0.30000000000000004s">
-                <td class="rank">7</td>
-                <td class="ticker">VPB</td>
-                <td class="company">VietNam Prosperity Joint Stock Commercial Bank</td>
-                <td class="number">25,800</td>
-                <td class="number">26,250</td>
-                <td class="number">25,050</td>
-                <td class="number med-vol">4.65%</td>
-                <td class="number">22,414,600</td>
-                <td class="number">22,414,600 (0d)</td>
-                <td class="number normal-ratio">1.00x</td>
-                <td class="number positive">▲ 0.78%</td>
-            </tr>
-            
-            <tr class="data-row" style="animation-delay: 0.35000000000000003s">
-                <td class="rank">8</td>
-                <td class="ticker">STB</td>
-                <td class="company">Saigon Treasure Commercial Joint Stock Bank</td>
-                <td class="number">69,500</td>
-                <td class="number">72,500</td>
-                <td class="number">69,500</td>
-                <td class="number med-vol">4.32%</td>
-                <td class="number">7,250,100</td>
-                <td class="number">7,250,100 (0d)</td>
-                <td class="number normal-ratio">1.00x</td>
-                <td class="number positive">▲ 2.87%</td>
-            </tr>
-            
-            <tr class="data-row" style="animation-delay: 0.4s">
-                <td class="rank">9</td>
-                <td class="ticker">HDB</td>
-                <td class="company">Ho Chi Minh City Development Joint Stock Commercial Bank</td>
-                <td class="number">26,300</td>
-                <td class="number">27,150</td>
-                <td class="number">26,050</td>
-                <td class="number med-vol">4.18%</td>
-                <td class="number">13,607,200</td>
-                <td class="number">13,607,200 (0d)</td>
-                <td class="number normal-ratio">1.00x</td>
-                <td class="number positive">▲ 3.04%</td>
-            </tr>
-            
-            <tr class="data-row" style="animation-delay: 0.45s">
-                <td class="rank">10</td>
-                <td class="ticker">GVR</td>
-                <td class="company">Viet Nam Rubber Group - Joint Stock Company</td>
-                <td class="number">30,100</td>
-                <td class="number">30,450</td>
-                <td class="number">29,250</td>
-                <td class="number med-vol">3.99%</td>
-                <td class="number">1,225,400</td>
-                <td class="number">1,225,400 (0d)</td>
-                <td class="number normal-ratio">1.00x</td>
-                <td class="number positive">▲ 0.50%</td>
-            </tr>
-            
-                        </tbody>
-                    </table>
-                </div>
-            </div>
 
-            <!-- Footer -->
-            <footer class="footer">
-                <p>
-                    Generated by <strong>Finhay Stock Analytics Pipeline</strong> ·
-                    Data source: <a href="https://iboard.ssi.com.vn">SSI iBoard</a> ·
-                    Report generated at 2026-07-16 21:43:51 ICT
-                </p>
-                <p style="margin-top: 0.5rem">
-                    Query: "Top 10 stocks by intraday volatility (high − low) / open price,
-                    with volume comparison to 5-day average"
-                </p>
-            </footer>
-        </div>
-    </body>
+            <tr class="data-row" style="animation-delay: 0.1s">
+              <td class="rank">3</td>
+              <td class="ticker">PLX</td>
+              <td class="company">Viet Nam National Petroleum Group</td>
+              <td class="number">36,100</td>
+              <td class="number">36,550</td>
+              <td class="number">34,500</td>
+              <td class="number high-vol">5.68%</td>
+              <td class="number">2,072,000</td>
+              <td class="number">2,072,000 (0d)</td>
+              <td class="number normal-ratio">1.00x</td>
+              <td class="number negative">▼ 0.42%</td>
+            </tr>
+
+            <tr class="data-row" style="animation-delay: 0.15000000000000002s">
+              <td class="rank">4</td>
+              <td class="ticker">SSI</td>
+              <td class="company">SSI Securities Corporation</td>
+              <td class="number">24,500</td>
+              <td class="number">25,000</td>
+              <td class="number">23,700</td>
+              <td class="number high-vol">5.31%</td>
+              <td class="number">34,764,700</td>
+              <td class="number">34,764,700 (0d)</td>
+              <td class="number normal-ratio">1.00x</td>
+              <td class="number positive">▲ 1.21%</td>
+            </tr>
+
+            <tr class="data-row" style="animation-delay: 0.2s">
+              <td class="rank">5</td>
+              <td class="ticker">VIC</td>
+              <td class="company">Vingroup Joint Stock Company</td>
+              <td class="number">212,000</td>
+              <td class="number">223,000</td>
+              <td class="number">212,000</td>
+              <td class="number high-vol">5.19%</td>
+              <td class="number">4,074,700</td>
+              <td class="number">4,074,700 (0d)</td>
+              <td class="number normal-ratio">1.00x</td>
+              <td class="number positive">▲ 2.76%</td>
+            </tr>
+
+            <tr class="data-row" style="animation-delay: 0.25s">
+              <td class="rank">6</td>
+              <td class="ticker">FPT</td>
+              <td class="company">FPT Corporation</td>
+              <td class="number">66,700</td>
+              <td class="number">68,000</td>
+              <td class="number">64,700</td>
+              <td class="number med-vol">4.95%</td>
+              <td class="number">13,030,600</td>
+              <td class="number">13,030,600 (0d)</td>
+              <td class="number normal-ratio">1.00x</td>
+              <td class="number positive">▲ 1.80%</td>
+            </tr>
+
+            <tr class="data-row" style="animation-delay: 0.30000000000000004s">
+              <td class="rank">7</td>
+              <td class="ticker">VPB</td>
+              <td class="company">
+                VietNam Prosperity Joint Stock Commercial Bank
+              </td>
+              <td class="number">25,800</td>
+              <td class="number">26,250</td>
+              <td class="number">25,050</td>
+              <td class="number med-vol">4.65%</td>
+              <td class="number">22,414,600</td>
+              <td class="number">22,414,600 (0d)</td>
+              <td class="number normal-ratio">1.00x</td>
+              <td class="number positive">▲ 0.78%</td>
+            </tr>
+
+            <tr class="data-row" style="animation-delay: 0.35000000000000003s">
+              <td class="rank">8</td>
+              <td class="ticker">STB</td>
+              <td class="company">
+                Saigon Treasure Commercial Joint Stock Bank
+              </td>
+              <td class="number">69,500</td>
+              <td class="number">72,500</td>
+              <td class="number">69,500</td>
+              <td class="number med-vol">4.32%</td>
+              <td class="number">7,250,100</td>
+              <td class="number">7,250,100 (0d)</td>
+              <td class="number normal-ratio">1.00x</td>
+              <td class="number positive">▲ 2.87%</td>
+            </tr>
+
+            <tr class="data-row" style="animation-delay: 0.4s">
+              <td class="rank">9</td>
+              <td class="ticker">HDB</td>
+              <td class="company">
+                Ho Chi Minh City Development Joint Stock Commercial Bank
+              </td>
+              <td class="number">26,300</td>
+              <td class="number">27,150</td>
+              <td class="number">26,050</td>
+              <td class="number med-vol">4.18%</td>
+              <td class="number">13,607,200</td>
+              <td class="number">13,607,200 (0d)</td>
+              <td class="number normal-ratio">1.00x</td>
+              <td class="number positive">▲ 3.04%</td>
+            </tr>
+
+            <tr class="data-row" style="animation-delay: 0.45s">
+              <td class="rank">10</td>
+              <td class="ticker">GVR</td>
+              <td class="company">
+                Viet Nam Rubber Group - Joint Stock Company
+              </td>
+              <td class="number">30,100</td>
+              <td class="number">30,450</td>
+              <td class="number">29,250</td>
+              <td class="number med-vol">3.99%</td>
+              <td class="number">1,225,400</td>
+              <td class="number">1,225,400 (0d)</td>
+              <td class="number normal-ratio">1.00x</td>
+              <td class="number positive">▲ 0.50%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+
+    <!-- Footer -->
+    <footer class="footer">
+      <p>
+        Generated by <strong>Finhay Stock Analytics Pipeline</strong> · Data
+        source: <a href="https://iboard.ssi.com.vn">SSI iBoard</a> · Report
+        generated at 2026-07-16 21:43:51 ICT
+      </p>
+      <p style="margin-top: 0.5rem">
+        Query: "Top 10 stocks by intraday volatility (high − low) / open
+        price, with volume comparison to 5-day average"
+      </p>
+    </footer>
+  </div>
+</body>
+
 </html>
