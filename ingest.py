@@ -25,7 +25,8 @@ import sys
 import time
 import urllib.error
 import urllib.request
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
+from zoneinfo import ZoneInfo
 
 import config
 
@@ -261,7 +262,21 @@ def fetch_with_fallback(primary_url: str, fallback_url: str) -> list[dict]:
 # ─── Data Transformation ────────────────────────────────────────────────────
 
 # Vietnam timezone: UTC+7
-ICT = timezone(timedelta(hours=7))
+ICT = ZoneInfo("Asia/Ho_Chi_Minh")
+
+
+def safe_float(val: any) -> float | None:
+    try:
+        return float(val) if val is not None and str(val).strip() != "" else None
+    except (ValueError, TypeError):
+        return None
+
+
+def safe_int(val: any) -> int | None:
+    try:
+        return int(val) if val is not None and str(val).strip() != "" else None
+    except (ValueError, TypeError):
+        return None
 
 
 def parse_trading_date(raw_date: str) -> str:
@@ -299,22 +314,22 @@ def normalize_record(raw: dict) -> dict | None:
         "ticker": ticker,
         "company_name": raw.get("companyNameEn"),
         "exchange": raw.get("exchange", "").upper(),
-        "price": raw.get("matchedPrice"),
-        "open_price": raw.get("openPrice"),
-        "high_price": raw.get("highest"),
-        "low_price": raw.get("lowest"),
-        "ref_price": raw.get("refPrice"),
-        "ceiling_price": raw.get("ceiling"),
-        "floor_price": raw.get("floor"),
-        "price_change": raw.get("priceChange"),
-        "change_pct": raw.get("priceChangePercent"),
-        "volume": raw.get("nmTotalTradedQty"),
-        "market_cap": raw.get("nmTotalTradedValue"),
-        "foreign_buy_vol": raw.get("buyForeignQtty"),
-        "foreign_sell_vol": raw.get("sellForeignQtty"),
-        "foreign_remaining": raw.get("remainForeignQtty"),
-        "best_bid": raw.get("best1Bid"),
-        "best_offer": raw.get("best1Offer"),
+        "price": safe_float(raw.get("matchedPrice")),
+        "open_price": safe_float(raw.get("openPrice")),
+        "high_price": safe_float(raw.get("highest")),
+        "low_price": safe_float(raw.get("lowest")),
+        "ref_price": safe_float(raw.get("refPrice")),
+        "ceiling_price": safe_float(raw.get("ceiling")),
+        "floor_price": safe_float(raw.get("floor")),
+        "price_change": safe_float(raw.get("priceChange")),
+        "change_pct": safe_float(raw.get("priceChangePercent")),
+        "volume": safe_int(raw.get("nmTotalTradedQty")),
+        "market_cap": safe_float(raw.get("nmTotalTradedValue")),
+        "foreign_buy_vol": safe_int(raw.get("buyForeignQtty")),
+        "foreign_sell_vol": safe_int(raw.get("sellForeignQtty")),
+        "foreign_remaining": safe_int(raw.get("remainForeignQtty")),
+        "best_bid": safe_float(raw.get("best1Bid")),
+        "best_offer": safe_float(raw.get("best1Offer")),
         "session": raw.get("session"),
         "trading_date": trading_date,
         "timestamp": now_ict.strftime("%Y-%m-%d %H:%M:%S"),
@@ -365,10 +380,9 @@ def insert_records(conn: sqlite3.Connection, records: list[dict]) -> int:
     cursor = conn.cursor()
     try:
         cursor.executemany(UPSERT_SQL, records)
-        conn.commit()
         affected = cursor.rowcount
-        logger.info("Successfully upserted %d records into stock_prices", len(records))
-        return len(records)
+        logger.info("Successfully upserted %d records into stock_prices", affected)
+        return affected
     except sqlite3.Error as e:
         conn.rollback()
         logger.error("Database insert failed: %s", e)
@@ -418,7 +432,6 @@ def log_ingestion_run(
             error_message,
         ),
     )
-    conn.commit()
 
 
 # ─── Main Entry Point ───────────────────────────────────────────────────────
@@ -478,6 +491,9 @@ def run_ingestion(api_url: str, db_path: str) -> dict:
             duration_ms=elapsed,
         )
 
+        # 6. Commit single transaction
+        conn.commit()
+
         logger.info(
             "✅ Ingestion complete — %d rows fetched, %d rows upserted in %dms",
             len(raw_data),
@@ -492,13 +508,18 @@ def run_ingestion(api_url: str, db_path: str) -> dict:
         logger.error("❌ Ingestion failed: %s", e, exc_info=True)
 
         if conn:
-            log_ingestion_run(
-                conn,
-                "failure",
-                api_url,
-                duration_ms=elapsed,
-                error_message=str(e),
-            )
+            conn.rollback()
+            try:
+                log_ingestion_run(
+                    conn,
+                    "failure",
+                    api_url,
+                    duration_ms=elapsed,
+                    error_message=str(e),
+                )
+                conn.commit()
+            except Exception as log_err:
+                logger.error("Failed to log ingestion error: %s", log_err)
 
     finally:
         if conn:

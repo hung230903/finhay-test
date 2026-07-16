@@ -114,22 +114,25 @@ LOG_DATE_FORMAT = "%Y-%m-%d %H:%M:%S"
 
 import logging
 import sys
+
 import config
+
 
 def setup_logger(name: str) -> logging.Logger:
     logger = logging.getLogger(name)
     if logger.hasHandlers():
         return logger
-    
+
     logger.setLevel(getattr(logging, config.LOG_LEVEL.upper(), logging.INFO))
     formatter = logging.Formatter(config.LOG_FORMAT, datefmt=config.LOG_DATE_FORMAT)
-    
+
     sh = logging.StreamHandler(sys.stdout)
     sh.setFormatter(formatter)
     logger.addHandler(sh)
-    
+
     fh = logging.FileHandler(config.LOG_DIR / f"{name}.log", encoding="utf-8")
     fh.setFormatter(formatter)
     logger.addHandler(fh)
-    
+
     return logger
+

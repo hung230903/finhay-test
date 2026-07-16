@@ -23,8 +23,9 @@ import json
 import logging
 import sqlite3
 import sys
-from datetime import datetime, timedelta, timezone
+from datetime import datetime
 from pathlib import Path
+from zoneinfo import ZoneInfo
 
 import config
 
@@ -49,7 +50,7 @@ def setup_logging(log_level: str = config.LOG_LEVEL) -> None:
 
 # ─── Quality Check Framework ────────────────────────────────────────────────
 
-ICT = timezone(timedelta(hours=7))
+ICT = ZoneInfo("Asia/Ho_Chi_Minh")
 
 
 class QualityCheck:

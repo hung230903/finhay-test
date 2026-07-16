@@ -173,18 +173,65 @@ pytest test_pipeline.py
 ## 📊 Analytics Query
 
 ```sql
--- Top 10 stocks by intraday volatility with volume comparison
+-- Top 10 stocks by intraday volatility with volume comparison to 5-day average
+WITH latest_date AS (
+    SELECT MAX(trading_date) as max_date
+    FROM stock_prices
+),
+today_data AS (
+    SELECT
+        ticker,
+        company_name,
+        open_price,
+        high_price,
+        low_price,
+        price,
+        change_pct,
+        volume,
+        trading_date
+    FROM stock_prices
+    WHERE trading_date = (SELECT max_date FROM latest_date)
+),
+historical_data AS (
+    SELECT
+        ticker,
+        AVG(volume) as avg_volume_5d,
+        COUNT(*) as hist_days
+    FROM (
+        SELECT
+            ticker,
+            volume,
+            trading_date,
+            ROW_NUMBER() OVER (
+                PARTITION BY ticker
+                ORDER BY trading_date DESC
+            ) as rn
+        FROM stock_prices
+        WHERE trading_date < (SELECT max_date FROM latest_date)
+    )
+    WHERE rn <= 5
+    GROUP BY ticker
+)
 SELECT
-    ticker,
-    open_price,
-    high_price,
-    low_price,
-    (high - low) / open * 100 AS volatility_pct,
-    volume AS today_volume,
-    AVG(historical_volume) AS five_day_avg_volume,
-    today_volume / five_day_avg_volume AS volume_ratio
-FROM stock_prices
-ORDER BY volatility_pct DESC
+    t.ticker,
+    t.open_price,
+    t.high_price,
+    t.low_price,
+    CASE
+        WHEN t.open_price > 0
+        THEN ((t.high_price - t.low_price) / t.open_price) * 100
+        ELSE 0
+    END as "Volatility %",
+    t.volume as "Today Volume",
+    COALESCE(h.avg_volume_5d, t.volume) as "5-Day Avg Volume",
+    CASE
+        WHEN h.avg_volume_5d > 0
+        THEN CAST(t.volume AS REAL) / h.avg_volume_5d
+        ELSE 1.0
+    END as "Volume Ratio"
+FROM today_data t
+LEFT JOIN historical_data h ON t.ticker = h.ticker
+ORDER BY "Volatility %" DESC
 LIMIT 10;
 ```
 
@@ -219,3 +266,14 @@ All configuration is centralized in `config.py` and can be overridden via enviro
 | Market holiday / no data | Reports empty data, exits with warning         |
 | Database locked          | WAL mode for concurrent reads                  |
 | Partial data             | Inserts valid records, skips invalid ones      |
+
+## 🏛️ Design Decisions
+
+1. **Zero Runtime Dependencies** — Uses only the Python Standard Library for the core pipeline (no `pandas`, `requests`, or `sqlalchemy` needed). `pytest` is used strictly for development/testing.
+2. **Central Orchestrator (`main.py`)** — All stages are decoupled but seamlessly managed by a central script, allowing users to run the full pipeline or individual stages via CLI arguments.
+3. **Flat Monolithic Architecture** — Kept the project structure flat to maximize readability and ease of evaluation without complex nested packages.
+4. **UPSERT Strategy** — Database writes are idempotent, preventing duplicate records if the script is run multiple times on the same trading day.
+5. **WAL Mode (SQLite)** — Write-Ahead Logging is enabled to allow concurrent readers (e.g., analytics query) while ingestion is still writing.
+6. **Fallback API Mechanism** — Automatically falls back to the HOSE30 endpoint if the primary VN30 endpoint returns empty.
+7. **Extensible Quality Framework** — Built a class-based rules engine for data quality, making it trivial to add new validation rules in the future.
+8. **Audit Trail** — An `ingestion_log` table tracks every pipeline execution run (success/failure, row counts, duration) for easier debugging.

@@ -1,11 +1,13 @@
-
 import sqlite3
 from contextlib import closing
-from datetime import datetime, timezone, timedelta
+from datetime import datetime
+from zoneinfo import ZoneInfo
+
 import config
 
 logger = config.setup_logger("analytics")
-ICT = timezone(timedelta(hours=7))
+ICT = ZoneInfo("Asia/Ho_Chi_Minh")
+
 
 def generate_html(rows: list[dict], query_date: str) -> str:
     """
@@ -541,13 +543,14 @@ def generate_html(rows: list[dict], query_date: str) -> str:
 
 # ─── Query Execution ────────────────────────────────────────────────────────
 
+
 def run_analytics(db_path: str, output_path: str) -> None:
     logger.info("Running analytics query...")
-    
+
     with closing(sqlite3.connect(db_path)) as conn:
         conn.row_factory = sqlite3.Row
         cursor = conn.cursor()
-        
+
         try:
             cursor.execute("""
                 WITH latest_date AS (
@@ -573,9 +576,20 @@ def run_analytics(db_path: str, output_path: str) -> None:
                     SELECT 
                         ticker, 
                         AVG(volume) as avg_volume_5d, 
-                        COUNT(trading_date) as hist_days 
-                    FROM stock_prices 
-                    WHERE trading_date < (SELECT max_date FROM latest_date) 
+                        COUNT(*) as hist_days 
+                    FROM (
+                        SELECT 
+                            ticker, 
+                            volume, 
+                            trading_date,
+                            ROW_NUMBER() OVER (
+                                PARTITION BY ticker 
+                                ORDER BY trading_date DESC
+                            ) as rn
+                        FROM stock_prices 
+                        WHERE trading_date < (SELECT max_date FROM latest_date)
+                    )
+                    WHERE rn <= 5
                     GROUP BY ticker
                 )
                 SELECT 
@@ -603,10 +617,10 @@ def run_analytics(db_path: str, output_path: str) -> None:
                 LIMIT 10;
             """)
             raw_rows = cursor.fetchall()
-            
+
         except sqlite3.Error as e:
             logger.error(f"Database error during analytics: {e}")
-            return
+            raise
 
     query_date = raw_rows[0]["QueryDate"] if raw_rows else "N/A"
 
@@ -626,17 +640,20 @@ def run_analytics(db_path: str, output_path: str) -> None:
         }
         for r in raw_rows
     ]
-    
+
     logger.info("Query returned %d rows for date %s", len(rows), query_date)
-    
+
     html_content = generate_html(rows, query_date)
     with open(output_path, "w", encoding="utf-8") as f:
         f.write(html_content)
-        
+
     logger.info("✅ Analytics report saved to: %s", output_path)
-    
+
     if rows:
-        logger.info("Top volatility: %s (%.2f%%)", rows[0]['ticker'], rows[0]['volatility_pct'])
+        logger.info(
+            "Top volatility: %s (%.2f%%)", rows[0]["ticker"], rows[0]["volatility_pct"]
+        )
+
 
 if __name__ == "__main__":
     run_analytics(config.DATABASE_PATH, config.ANALYTICS_OUTPUT_PATH)
