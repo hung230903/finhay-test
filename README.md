@@ -87,7 +87,6 @@ pytest test_pipeline.py
 
 > **💡 Note on Endpoint Selection (VN30 vs HOSE30):**
 > The original project requirement suggested using the `HOSE30` endpoint. However, during implementation and testing, it was discovered that the SSI API's `HOSE30` endpoint frequently returns empty data (instability). To ensure pipeline reliability, the primary endpoint was intentionally switched to `VN30` (which reliably returns the exact same top 30 HOSE stocks).
-> _As a bonus resilience feature, a fallback mechanism is implemented: if `VN30` fails, it automatically attempts to fetch from `HOSE30`._
 
 ### Field Mapping
 
@@ -157,7 +156,7 @@ pytest test_pipeline.py
 
 - **In-memory SQLite:** Tests use an isolated `:memory:` database to prevent polluting production data.
 - **Fixtures:** Utilizes `@pytest.fixture` for clean database setup and teardown.
-- **Coverage:** Tests API JSON parsing, graceful fallbacks, UPSERT idempotency.
+- **Coverage:** Tests API JSON parsing, graceful error handling, UPSERT idempotency.
 
 ## 📊 Analytics Query
 
@@ -250,7 +249,7 @@ All configuration is centralized in `config.py` and can be overridden via enviro
 | ------------------------ | ---------------------------------------------- |
 | API timeout              | Retries up to 3 times with exponential backoff |
 | Malformed JSON           | Logs error, fails gracefully                   |
-| Empty API response       | Falls back to alternate endpoint (HOSE30)      |
+| Empty API response       | Logs error, stops ingestion gracefully         |
 | Missing ticker field     | Skips record, logs warning                     |
 | Market holiday / no data | Reports empty data, exits with warning         |
 | Database locked          | WAL mode for concurrent reads                  |

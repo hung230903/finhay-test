@@ -1,5 +1,5 @@
 {
-  "report_generated_at": "2026-07-16 21:25:22 ICT",
+  "report_generated_at": "2026-07-16 21:43:51 ICT",
   "database_path": "/home/hung/Documents/PycharmProject/finhay-test/market_data.db",
   "summary": {
     "total_checks": 5,
@@ -42,7 +42,7 @@
         "zero_volume_count": 0,
         "zero_volume_tickers": [],
         "is_trading_hours": false,
-        "current_time_ict": "2026-07-16 21:25:22 ICT",
+        "current_time_ict": "2026-07-16 21:43:51 ICT",
         "message": "All records have positive volume"
       }
     },

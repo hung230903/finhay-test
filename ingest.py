@@ -9,7 +9,6 @@ Features:
   - Graceful handling of: timeouts, malformed JSON, empty responses, partial data
   - Idempotent inserts (UPSERT on ticker + timestamp composite key)
   - Structured logging for observability
-  - Fallback API endpoint if primary returns empty data
 
 Usage:
     python ingest.py                    # Single run
@@ -213,31 +212,6 @@ def fetch_stock_data(
     )
 
 
-def fetch_with_fallback(primary_url: str, fallback_url: str) -> list[dict]:
-    """
-    Try primary URL first; if it returns empty data, try fallback.
-
-    The HOSE30 endpoint sometimes returns empty data while VN30 works,
-    and vice versa — this makes the ingestion resilient.
-    """
-    try:
-        data = fetch_stock_data(primary_url)
-        if data:
-            return data
-        logger.warning(
-            "Primary URL returned empty data, trying fallback: %s",
-            fallback_url,
-        )
-    except RuntimeError as e:
-        logger.warning(
-            "Primary URL failed (%s), trying fallback: %s",
-            e,
-            fallback_url,
-        )
-
-    return fetch_stock_data(fallback_url)
-
-
 # ─── Data Transformation ────────────────────────────────────────────────────
 
 # Vietnam timezone: UTC+7
@@ -428,12 +402,12 @@ def run_ingestion(api_url: str, db_path: str) -> dict:
         conn.execute(CREATE_LOG_TABLE_SQL)
         conn.commit()
 
-        # 2. Fetch data (with fallback)
-        raw_data = fetch_with_fallback(api_url, config.API_FALLBACK_URL)
+        # 2. Fetch data
+        raw_data = fetch_stock_data(api_url)
         summary["rows_fetched"] = len(raw_data)
 
         if not raw_data:
-            msg = "API returned empty data (both primary and fallback)"
+            msg = "API returned empty data"
             logger.warning(msg)
             summary["error"] = msg
             log_ingestion_run(conn, "failure", api_url, error_message=msg)
