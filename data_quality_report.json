@@ -1,9 +1,9 @@
 {
-  "report_generated_at": "2026-07-16 17:37:20 ICT",
+  "report_generated_at": "2026-07-16 21:10:12 ICT",
   "database_path": "/home/hung/Documents/PycharmProject/finhay-test/market_data.db",
   "summary": {
-    "total_checks": 7,
-    "passed": 7,
+    "total_checks": 5,
+    "passed": 5,
     "failed": 0,
     "warnings": 0,
     "overall_status": "pass"
@@ -13,7 +13,7 @@
       "rule": "no_null_prices",
       "description": "Every record must have a non-null price value",
       "status": "pass",
-      "total_records": 60,
+      "total_records": 30,
       "violations": 0,
       "details": {
         "null_price_count": 0,
@@ -24,7 +24,7 @@
       "rule": "price_change_within_bounds",
       "description": "Price change percentage must be within ±30.0%",
       "status": "pass",
-      "total_records": 60,
+      "total_records": 30,
       "violations": 0,
       "details": {
         "threshold": "±30.0%",
@@ -36,13 +36,13 @@
       "rule": "volume_positivity",
       "description": "Volume must be positive (> 0) during trading hours (9:00-15:00 ICT)",
       "status": "pass",
-      "total_records": 60,
+      "total_records": 30,
       "violations": 0,
       "details": {
         "zero_volume_count": 0,
         "zero_volume_tickers": [],
         "is_trading_hours": false,
-        "current_time_ict": "2026-07-16 17:37:20 ICT",
+        "current_time_ict": "2026-07-16 21:10:12 ICT",
         "message": "All records have positive volume"
       }
     },
@@ -50,7 +50,7 @@
       "rule": "no_duplicate_tickers",
       "description": "Each ticker should appear at most once per trading day",
       "status": "pass",
-      "total_records": 60,
+      "total_records": 30,
       "violations": 0,
       "details": {
         "duplicate_entries": [],
@@ -58,21 +58,10 @@
       }
     },
     {
-      "rule": "price_within_ceiling_floor",
-      "description": "Matched price must be within the regulatory floor-ceiling range",
-      "status": "pass",
-      "total_records": 60,
-      "violations": 0,
-      "details": {
-        "out_of_range_tickers": [],
-        "message": "All prices within ceiling/floor bounds"
-      }
-    },
-    {
       "rule": "data_completeness",
       "description": "Critical columns should have no NULL values",
       "status": "pass",
-      "total_records": 60,
+      "total_records": 30,
       "violations": 0,
       "details": {
         "columns_checked": [
@@ -87,17 +76,6 @@
         ],
         "null_counts_by_column": "none",
         "message": "All critical columns are fully populated"
-      }
-    },
-    {
-      "rule": "bid_ask_spread_sanity",
-      "description": "Best offer price should be >= best bid price (no negative spread)",
-      "status": "pass",
-      "total_records": 60,
-      "violations": 0,
-      "details": {
-        "negative_spread_tickers": [],
-        "message": "All bid-ask spreads are valid"
       }
     }
   ]

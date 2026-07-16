@@ -59,24 +59,13 @@ CREATE_TABLE_SQL = """
         id              INTEGER PRIMARY KEY AUTOINCREMENT,
         ticker          TEXT    NOT NULL,
         company_name    TEXT,
-        exchange        TEXT,
         price           REAL,
         open_price      REAL,
         high_price      REAL,
         low_price       REAL,
-        ref_price       REAL,
-        ceiling_price   REAL,
-        floor_price     REAL,
-        price_change    REAL,
         change_pct      REAL,
         volume          INTEGER,
         market_cap      REAL,
-        foreign_buy_vol INTEGER,
-        foreign_sell_vol INTEGER,
-        foreign_remaining INTEGER,
-        best_bid        REAL,
-        best_offer      REAL,
-        session         TEXT,
         trading_date    TEXT    NOT NULL,
         timestamp       TEXT    NOT NULL,
         created_at      TEXT    NOT NULL DEFAULT (datetime('now')),
@@ -101,30 +90,20 @@ CREATE_INDEXES_SQL = [
 
 UPSERT_SQL = """
     INSERT INTO stock_prices (
-        ticker, company_name, exchange, price, open_price, high_price, low_price,
-        ref_price, ceiling_price, floor_price, price_change, change_pct,
-        volume, market_cap, foreign_buy_vol, foreign_sell_vol, foreign_remaining,
-        best_bid, best_offer, session, trading_date, timestamp
+        ticker, company_name, price, open_price, high_price, low_price,
+        change_pct, volume, market_cap, trading_date, timestamp
     ) VALUES (
-        :ticker, :company_name, :exchange, :price, :open_price, :high_price, :low_price,
-        :ref_price, :ceiling_price, :floor_price, :price_change, :change_pct,
-        :volume, :market_cap, :foreign_buy_vol, :foreign_sell_vol, :foreign_remaining,
-        :best_bid, :best_offer, :session, :trading_date, :timestamp
+        :ticker, :company_name, :price, :open_price, :high_price, :low_price,
+        :change_pct, :volume, :market_cap, :trading_date, :timestamp
     )
     ON CONFLICT(ticker, trading_date) DO UPDATE SET
         price           = excluded.price,
         open_price      = excluded.open_price,
         high_price      = excluded.high_price,
         low_price       = excluded.low_price,
-        price_change    = excluded.price_change,
         change_pct      = excluded.change_pct,
         volume          = excluded.volume,
         market_cap      = excluded.market_cap,
-        foreign_buy_vol = excluded.foreign_buy_vol,
-        foreign_sell_vol= excluded.foreign_sell_vol,
-        best_bid        = excluded.best_bid,
-        best_offer      = excluded.best_offer,
-        session         = excluded.session,
         timestamp       = excluded.timestamp;
 """
 
@@ -313,24 +292,13 @@ def normalize_record(raw: dict) -> dict | None:
     return {
         "ticker": ticker,
         "company_name": raw.get("companyNameEn"),
-        "exchange": raw.get("exchange", "").upper(),
         "price": safe_float(raw.get("matchedPrice")),
         "open_price": safe_float(raw.get("openPrice")),
         "high_price": safe_float(raw.get("highest")),
         "low_price": safe_float(raw.get("lowest")),
-        "ref_price": safe_float(raw.get("refPrice")),
-        "ceiling_price": safe_float(raw.get("ceiling")),
-        "floor_price": safe_float(raw.get("floor")),
-        "price_change": safe_float(raw.get("priceChange")),
         "change_pct": safe_float(raw.get("priceChangePercent")),
         "volume": safe_int(raw.get("nmTotalTradedQty")),
         "market_cap": safe_float(raw.get("nmTotalTradedValue")),
-        "foreign_buy_vol": safe_int(raw.get("buyForeignQtty")),
-        "foreign_sell_vol": safe_int(raw.get("sellForeignQtty")),
-        "foreign_remaining": safe_int(raw.get("remainForeignQtty")),
-        "best_bid": safe_float(raw.get("best1Bid")),
-        "best_offer": safe_float(raw.get("best1Offer")),
-        "session": raw.get("session"),
         "trading_date": trading_date,
         "timestamp": now_ict.strftime("%Y-%m-%d %H:%M:%S"),
     }

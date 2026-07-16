@@ -434,9 +434,7 @@ def run_all_checks(db_path: str) -> dict:
         PriceChangeBoundsCheck(),
         VolumePositivityCheck(),
         DuplicateTickerCheck(),
-        PriceCeilingFloorCheck(),
         DataCompletenessCheck(),
-        BidAskSpreadCheck(),
     ]
 
     conn = sqlite3.connect(db_path)

@@ -74,14 +74,7 @@ FIELD_MAPPING = {
     "floor": "floor_price",  # Price floor (−7%)
     "priceChange": "price_change",  # Absolute price change (VND)
     "companyNameEn": "company_name",
-    "exchange": "exchange",
     "tradingDate": "trading_date_raw",  # Raw format: "20260715"
-    "buyForeignQtty": "foreign_buy_vol",
-    "sellForeignQtty": "foreign_sell_vol",
-    "remainForeignQtty": "foreign_remaining",
-    "best1Bid": "best_bid",
-    "best1Offer": "best_offer",
-    "session": "session",  # Trading session (ATO, ATC, PRE, etc.)
 }
 
 # ─── Data Quality Thresholds ────────────────────────────────────────────────
