@@ -157,7 +157,7 @@ pytest test_pipeline.py
 
 - **In-memory SQLite:** Tests use an isolated `:memory:` database to prevent polluting production data.
 - **Fixtures:** Utilizes `@pytest.fixture` for clean database setup and teardown.
-- **Coverage:** Tests API JSON parsing, graceful fallbacks, UPSERT idempotency, and Data Quality bounds checking.
+- **Coverage:** Tests API JSON parsing, graceful fallbacks, UPSERT idempotency.
 
 ## 📊 Analytics Query
 
