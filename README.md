@@ -86,8 +86,8 @@ pytest test_pipeline.py
 | Update   | Real-time during trading hours (9:00–15:00 ICT)    |
 
 > **💡 Note on Endpoint Selection (VN30 vs HOSE30):**
-> The original project requirement suggested using the `HOSE30` endpoint. However, during implementation and testing, it was discovered that the SSI API's `HOSE30` endpoint frequently returns empty data (instability). To ensure pipeline reliability, the primary endpoint was intentionally switched to `VN30` (which reliably returns the exact same top 30 HOSE stocks). 
-> *As a bonus resilience feature, a fallback mechanism is implemented: if `VN30` fails, it automatically attempts to fetch from `HOSE30`.*
+> The original project requirement suggested using the `HOSE30` endpoint. However, during implementation and testing, it was discovered that the SSI API's `HOSE30` endpoint frequently returns empty data (instability). To ensure pipeline reliability, the primary endpoint was intentionally switched to `VN30` (which reliably returns the exact same top 30 HOSE stocks).
+> _As a bonus resilience feature, a fallback mechanism is implemented: if `VN30` fails, it automatically attempts to fetch from `HOSE30`._
 
 ### Field Mapping
 
@@ -138,13 +138,13 @@ CREATE TABLE stock_prices (
 
 ## ✅ Data Quality Checks
 
-| #   | Rule                     | Logic                                        | Status   |
-| --- | ------------------------ | -------------------------------------------- | -------- |
-| 1   | **No NULL prices**       | `price IS NOT NULL` for all records          | Required |
-| 2   | **Price change bounds**  | `change_pct` within ±30%                     | Required |
-| 3   | **Volume positivity**    | `volume > 0` during 9:00–15:00 ICT           | Required |
-| 4   | **No duplicate tickers** | Max 1 record per ticker per trading day      | Bonus    |
-| 5   | **Data completeness**    | No NULLs in critical columns                 | Bonus    |
+| #   | Rule                     | Logic                                   | Status   |
+| --- | ------------------------ | --------------------------------------- | -------- |
+| 1   | **No NULL prices**       | `price IS NOT NULL` for all records     | Required |
+| 2   | **Price change bounds**  | `change_pct` within ±30%                | Required |
+| 3   | **Volume positivity**    | `volume > 0` during 9:00–15:00 ICT      | Required |
+| 4   | **No duplicate tickers** | Max 1 record per ticker per trading day | Bonus    |
+| 5   | **Data completeness**    | No NULLs in critical columns            | Bonus    |
 
 ## 🧪 Unit Testing
 
@@ -255,14 +255,3 @@ All configuration is centralized in `config.py` and can be overridden via enviro
 | Market holiday / no data | Reports empty data, exits with warning         |
 | Database locked          | WAL mode for concurrent reads                  |
 | Partial data             | Inserts valid records, skips invalid ones      |
-
-## 🏛️ Design Decisions
-
-1. **Zero Runtime Dependencies** — Uses only the Python Standard Library for the core pipeline (no `pandas`, `requests`, or `sqlalchemy` needed). `pytest` is used strictly for development/testing.
-2. **Central Orchestrator (`main.py`)** — All stages are decoupled but seamlessly managed by a central script, allowing users to run the full pipeline or individual stages via CLI arguments.
-3. **Flat Monolithic Architecture** — Kept the project structure flat to maximize readability and ease of evaluation without complex nested packages.
-4. **UPSERT Strategy** — Database writes are idempotent, preventing duplicate records if the script is run multiple times on the same trading day.
-5. **WAL Mode (SQLite)** — Write-Ahead Logging is enabled to allow concurrent readers (e.g., analytics query) while ingestion is still writing.
-6. **Fallback API Mechanism** — Automatically falls back to the HOSE30 endpoint if the primary VN30 endpoint returns empty.
-7. **Extensible Quality Framework** — Built a class-based rules engine for data quality, making it trivial to add new validation rules in the future.
-8. **Audit Trail** — An `ingestion_log` table tracks every pipeline execution run (success/failure, row counts, duration) for easier debugging.
